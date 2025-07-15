@@ -9,7 +9,6 @@ app.use(cors());
 app.use(express.json());
 PORT = 5000;
 
-
 app.post('/add-student', async (req, res) => {
       const { name, email, phone } = req.body;
       const newstudent = await pool.query(
