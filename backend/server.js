@@ -29,8 +29,10 @@ app.get('/student/:id', async (req, res) => {
       const student = await pool.query(
             'select * from students where id = $1', [id]
       )
-      res.json(student.rows);
+      res.json(student.rows[0]);
 })
+
+
 
 app.put('/edit-student/:id', async (req, res) => {
       const { id } = req.params;
