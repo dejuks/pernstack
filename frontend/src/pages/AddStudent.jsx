@@ -1,7 +1,9 @@
 import axios from 'axios';
 import React, { useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 const AddStudent = () => {
+      const navigator=useNavigate();
       const [name,setName]=useState();
       const [phone,setPhone]=useState();
       const [email,setEmail]=useState();
@@ -10,8 +12,9 @@ const AddStudent = () => {
             axios.post('http://localhost:5000/add-student',{name,email,phone})
             .then(res=>{
                   console.log('successfully Added');
-                  alert('Student Added successfulyy');
-                  window.location.href('/');
+                  alert('Student Added successfully');
+                  navigator('/')
+                 
             })
             .catch(err=>console.log(err));
 

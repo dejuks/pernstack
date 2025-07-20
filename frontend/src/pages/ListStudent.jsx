@@ -3,30 +3,58 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 function ListStudent() {
-  const [students, setStudent] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [search, setSearch] = useState('');
+  const [filteredStudents, setFilteredStudents] = useState([]);
 
+  // Fetch students from backend
   useEffect(() => {
     axios.get('http://localhost:5000/students')
-      .then(res => setStudent(res.data))
+      .then(res => {
+        setStudents(res.data);
+        setFilteredStudents(res.data); // Initialize filtered list
+      })
       .catch(err => console.log(err));
   }, []);
 
+  // Handle Delete
   const deleteHandle = (id) => {
     axios.delete(`http://localhost:5000/delete-student/${id}`)
-      .then(res => {
-        console.log('Student deleted successfully');
+      .then(() => {
         alert('Deleted');
-        // Refresh without reload for better UX
-        setStudent(prev => prev.filter(student => student.id !== id));
+        const updatedList = students.filter(student => student.id !== id);
+        setStudents(updatedList);
+        setFilteredStudents(updatedList);
       })
       .catch(err => console.log(err));
   };
+
+  // Search filter logic
+  useEffect(() => {
+    const results = students.filter(student =>
+      student.name.toLowerCase().includes(search.toLowerCase()) ||
+      student.email.toLowerCase().includes(search.toLowerCase()) ||
+      student.phone.toLowerCase().includes(search.toLowerCase())
+    );
+    setFilteredStudents(results);
+  }, [search, students]);
 
   return (
     <div className='row'>
       <div className='card'>
         <div className='card-body'>
           <Link to="/add-student" className="btn btn-primary mb-3">Add Student</Link>
+
+          <div className='mb-4 flex py-2 border rounded'>
+            <input
+              type="text"
+              placeholder='Search by name, email, or phone...'
+              className='w-full px-3'
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+
           <table className='table table-bordered'>
             <thead>
               <tr>
@@ -38,27 +66,23 @@ function ListStudent() {
               </tr>
             </thead>
             <tbody>
-              {students.map((student, index) => (
+              {filteredStudents.map((student, index) => (
                 <tr key={index}>
                   <td>{student.id}</td>
                   <td>{student.name}</td>
                   <td>{student.email}</td>
                   <td>{student.phone}</td>
                   <td>
+                    <Link to={`/edit-student/${student.id}`} className='btn btn-sm btn-warning'>Edit</Link>
                     <button
                       onClick={() => deleteHandle(student.id)}
-                      className='btn btn-sm btn-danger me-2'>
+                      className='btn btn-sm btn-danger ms-2'>
                       Delete
                     </button>
-                    <Link
-                      to={`/edit-student/${student.id}`}
-                      className='btn btn-sm btn-warning'>
-                      Edit
-                    </Link>
                   </td>
                 </tr>
               ))}
-              {students.length === 0 && (
+              {filteredStudents.length === 0 && (
                 <tr><td colSpan="5" className="text-center">No students found</td></tr>
               )}
             </tbody>
